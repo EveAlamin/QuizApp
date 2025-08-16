@@ -24,7 +24,7 @@ import kotlinx.coroutines.delay
 @Composable
 fun SplashScreen(navController: NavController) {
     LaunchedEffect(key1 = true) {
-        delay(2000) // Aumentado para melhor visualização
+        delay(2000)
         val route = if (FirebaseAuth.getInstance().currentUser != null) {
             Screen.Dashboard.route
         } else {
@@ -38,17 +38,17 @@ fun SplashScreen(navController: NavController) {
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.primary), // Fundo com a cor primária
+            .background(MaterialTheme.colorScheme.background),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
-            text = "QuizApp",
+            text = "Quizzly",
             fontSize = 48.sp,
             fontWeight = FontWeight.Bold,
-            color = MaterialTheme.colorScheme.onPrimary
+            color = MaterialTheme.colorScheme.primary
         )
         Spacer(modifier = Modifier.height(24.dp))
-        CircularProgressIndicator(color = MaterialTheme.colorScheme.onPrimary)
+        CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
     }
 }

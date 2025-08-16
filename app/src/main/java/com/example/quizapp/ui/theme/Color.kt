@@ -2,9 +2,11 @@ package com.example.quizapp.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
-val DarkBlue = Color(0xFF1B262C)
-val NavyBlue = Color(0xFF0F4C75)
-val LightBlue = Color(0xFF3282B8)
-val AccentBlue = Color(0xFFBBE1FA)
-val OffWhite = Color(0xFFE0E0E0)
-val TextColor = Color(0xFFFFFFFF)
+val DarkGreen = Color(0xFF004D40)
+val LightGreen = Color(0xFFB2DFDB)
+val White = Color(0xFFFFFFFF)
+val OffWhite = Color(0xFFFAFAFA)
+val DarkText = Color(0xFF212121)
+val LightText = Color(0xFFFFFFFF)
+val ErrorRed = Color(0xFFB00020)
+val LightErrorRed = Color(0xFFFFEBEE)

@@ -25,7 +25,6 @@ import com.google.firebase.firestore.FirebaseFirestore
 fun DashboardScreen(navController: NavController) {
     var userName by remember { mutableStateOf("Usuário") }
 
-    // Busca o nome do usuário no Firestore
     LaunchedEffect(key1 = Unit) {
         val userId = FirebaseAuth.getInstance().currentUser?.uid
         if (userId != null) {
@@ -41,8 +40,8 @@ fun DashboardScreen(navController: NavController) {
             TopAppBar(
                 title = { Text("Olá, $userName!", fontWeight = FontWeight.Bold) },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primaryContainer,
-                    titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer
+                    containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                    titleContentColor = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             )
         }

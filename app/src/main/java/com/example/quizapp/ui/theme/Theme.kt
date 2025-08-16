@@ -1,45 +1,39 @@
 package com.example.quizapp.ui.theme
 
 import android.app.Activity
-import android.os.Build
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.darkColorScheme
-import androidx.compose.material3.dynamicDarkColorScheme
-import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
 
-private val DarkColorScheme = darkColorScheme(
-    primary = LightBlue,
-    onPrimary = TextColor,
-    primaryContainer = NavyBlue,
-    onPrimaryContainer = AccentBlue,
-    secondary = AccentBlue,
-    onSecondary = DarkBlue,
-    background = DarkBlue,
-    onBackground = OffWhite,
-    surface = NavyBlue,
-    onSurface = OffWhite,
-    surfaceVariant = Color(0xFF2A3A44),
-    onSurfaceVariant = OffWhite,
-    error = Color(0xFFCF6679),
-    errorContainer = Color(0xFFB00020),
-    onErrorContainer = Color.White
+private val LightColorScheme = lightColorScheme(
+    primary = DarkGreen,
+    onPrimary = White,
+    primaryContainer = LightGreen,
+    onPrimaryContainer = DarkGreen,
+    secondary = LightGreen,
+    onSecondary = DarkGreen,
+    background = White,
+    onBackground = DarkText,
+    surface = OffWhite,
+    onSurface = DarkText,
+    surfaceVariant = Color(0xFFEEEEEE),
+    onSurfaceVariant = DarkText,
+    error = ErrorRed,
+    errorContainer = LightErrorRed,
+    onErrorContainer = ErrorRed
 )
 
 @Composable
 fun QuizAppTheme(
-    darkTheme: Boolean = true, // Forçando o tema escuro como padrão
+    darkTheme: Boolean = false, // Padrão agora é o tema claro
     content: @Composable () -> Unit
 ) {
-    val colorScheme = DarkColorScheme
+    val colorScheme = LightColorScheme
     val view = LocalView.current
     if (!view.isInEditMode) {
         SideEffect {
