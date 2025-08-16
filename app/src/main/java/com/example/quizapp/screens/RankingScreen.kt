@@ -7,6 +7,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.quizapp.UserScore
@@ -22,7 +23,7 @@ fun RankingScreen(navController: NavController) {
     LaunchedEffect(key1 = Unit) {
         FirebaseFirestore.getInstance().collection("ranking")
             .orderBy("totalScore", Query.Direction.DESCENDING)
-            .limit(100) // Limita aos 100 melhores para não sobrecarregar
+            .limit(100)
             .get()
             .addOnSuccessListener { result ->
                 rankingList = result.map { it.toObject(UserScore::class.java) }
@@ -30,13 +31,17 @@ fun RankingScreen(navController: NavController) {
             }
             .addOnFailureListener {
                 isLoading = false
-                // Aqui você pode mostrar uma mensagem de erro
             }
     }
 
     Scaffold(
         topBar = {
-            TopAppBar(title = { Text("Ranking") })
+            TopAppBar(
+                title = { Text("Ranking Global") },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.surfaceVariant
+                )
+            )
         }
     ) { padding ->
         Box(
@@ -53,7 +58,7 @@ fun RankingScreen(navController: NavController) {
                 LazyColumn(
                     modifier = Modifier.fillMaxSize(),
                     contentPadding = PaddingValues(16.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
                     itemsIndexed(rankingList) { index, userScore ->
                         RankingItem(rank = index + 1, userScore = userScore)
@@ -68,21 +73,29 @@ fun RankingScreen(navController: NavController) {
 fun RankingItem(rank: Int, userScore: UserScore) {
     Card(
         modifier = Modifier.fillMaxWidth(),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
     ) {
         Row(
             modifier = Modifier.padding(16.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
+            verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                text = "$rank. ${userScore.name}",
+                text = "$rank.",
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.primary
+            )
+            Spacer(modifier = Modifier.width(16.dp))
+            Text(
+                text = userScore.name,
                 style = MaterialTheme.typography.bodyLarge,
                 modifier = Modifier.weight(1f)
             )
             Text(
                 text = "${userScore.totalScore} pts",
-                style = MaterialTheme.typography.bodyLarge
+                style = MaterialTheme.typography.bodyLarge,
+                fontWeight = FontWeight.SemiBold
             )
         }
     }

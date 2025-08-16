@@ -7,6 +7,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.quizapp.QuizAttempt
@@ -31,14 +32,10 @@ fun HistoryScreen(navController: NavController) {
                 .orderBy("timestamp", Query.Direction.DESCENDING)
                 .get()
                 .addOnSuccessListener { result ->
-                    if (result.isEmpty) {
-                        isLoading = false
-                    } else {
-                        historyList = result.map { it.toObject(QuizAttempt::class.java) }
-                        isLoading = false
-                    }
+                    historyList = result.map { it.toObject(QuizAttempt::class.java) }
+                    isLoading = false
                 }
-                .addOnFailureListener { exception ->
+                .addOnFailureListener {
                     errorMessage = "Falha ao carregar o histórico."
                     isLoading = false
                 }
@@ -49,7 +46,12 @@ fun HistoryScreen(navController: NavController) {
 
     Scaffold(
         topBar = {
-            TopAppBar(title = { Text("Histórico") })
+            TopAppBar(
+                title = { Text("Seu Histórico") },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.surfaceVariant
+                )
+            )
         }
     ) { padding ->
         Box(
@@ -66,11 +68,9 @@ fun HistoryScreen(navController: NavController) {
                 Text(text = "Nenhum histórico encontrado.")
             } else {
                 LazyColumn(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(horizontal = 16.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp),
-                    contentPadding = padding
+                    modifier = Modifier.fillMaxSize(),
+                    contentPadding = PaddingValues(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
                     items(historyList) { attempt ->
                         HistoryItem(attempt = attempt)
@@ -85,19 +85,22 @@ fun HistoryScreen(navController: NavController) {
 fun HistoryItem(attempt: QuizAttempt) {
     Card(
         modifier = Modifier.fillMaxWidth(),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Text(
                 text = "Pontuação: ${attempt.score}/${attempt.totalQuestions}",
-                style = MaterialTheme.typography.titleMedium
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold
             )
             Spacer(modifier = Modifier.height(4.dp))
-            val sdf = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault())
+            val sdf = SimpleDateFormat("dd/MM/yyyy 'às' HH:mm", Locale.getDefault())
             val date = Date(attempt.timestamp)
             Text(
                 text = sdf.format(date),
-                style = MaterialTheme.typography.bodySmall
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
     }

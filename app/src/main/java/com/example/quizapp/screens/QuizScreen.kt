@@ -1,13 +1,20 @@
 package com.example.quizapp.screens
 
 import android.widget.Toast
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.selection.selectable
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
@@ -15,6 +22,7 @@ import com.example.quizapp.Question
 import com.example.quizapp.navigation.Screen
 import com.google.firebase.firestore.FirebaseFirestore
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun QuizScreen(navController: NavController) {
     var questions by remember { mutableStateOf<List<Question>>(emptyList()) }
@@ -36,66 +44,103 @@ fun QuizScreen(navController: NavController) {
             }
     }
 
-    if (isLoading) {
-        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-            CircularProgressIndicator()
-        }
-    } else if (questions.isNotEmpty()) {
-        val currentQuestion = questions[currentQuestionIndex]
-
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(16.dp)
-        ) {
-            Text(text = currentQuestion.questionText, fontSize = 20.sp)
-            Spacer(modifier = Modifier.height(16.dp))
-
-            currentQuestion.options.forEach { option ->
-                Row(
-                    Modifier
-                        .fillMaxWidth()
-                        .selectable(
-                            selected = (option == selectedOption),
-                            onClick = { selectedOption = option }
-                        )
-                        .padding(vertical = 8.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    RadioButton(
-                        selected = (option == selectedOption),
-                        onClick = { selectedOption = option }
-                    )
-                    Text(text = option, modifier = Modifier.padding(start = 16.dp))
-                }
-            }
-            Spacer(modifier = Modifier.weight(1f))
-            Button(
-                onClick = {
-                    if (selectedOption.isNotEmpty()) {
-                        if (selectedOption == currentQuestion.correctAnswer) {
-                            score++
-                        }
-                        if (currentQuestionIndex < questions.size - 1) {
-                            currentQuestionIndex++
-                            selectedOption = ""
-                        } else {
-                            navController.navigate("${Screen.Results.route}/$score/${questions.size}") {
-                                popUpTo(Screen.Dashboard.route)
-                            }
-                        }
-                    } else {
-                        Toast.makeText(context, "Please select an answer", Toast.LENGTH_SHORT).show()
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = {
+                    if (questions.isNotEmpty()) {
+                        Text("Pergunta ${currentQuestionIndex + 1} de ${questions.size}")
                     }
                 },
-                modifier = Modifier.align(Alignment.End)
-            ) {
-                Text(if (currentQuestionIndex < questions.size - 1) "Próxima" else "Finalizar")
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.surfaceVariant
+                )
+            )
+        }
+    ) { padding ->
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(padding),
+            contentAlignment = Alignment.Center
+        ) {
+            if (isLoading) {
+                CircularProgressIndicator()
+            } else if (questions.isNotEmpty()) {
+                val currentQuestion = questions[currentQuestionIndex]
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(16.dp)
+                ) {
+                    Text(
+                        text = currentQuestion.questionText,
+                        fontSize = 22.sp,
+                        fontWeight = FontWeight.Medium,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 24.dp)
+                    )
+                    Spacer(modifier = Modifier.height(24.dp))
+                    currentQuestion.options.forEach { option ->
+                        OptionItem(
+                            text = option,
+                            isSelected = selectedOption == option,
+                            onOptionSelected = { selectedOption = option }
+                        )
+                        Spacer(modifier = Modifier.height(12.dp))
+                    }
+                    Spacer(modifier = Modifier.weight(1f))
+                    Button(
+                        onClick = {
+                            if (selectedOption.isNotEmpty()) {
+                                if (selectedOption == currentQuestion.correctAnswer) {
+                                    score++
+                                }
+                                if (currentQuestionIndex < questions.size - 1) {
+                                    currentQuestionIndex++
+                                    selectedOption = ""
+                                } else {
+                                    navController.navigate("${Screen.Results.route}/$score/${questions.size}") {
+                                        popUpTo(Screen.Dashboard.route)
+                                    }
+                                }
+                            } else {
+                                Toast.makeText(context, "Por favor, selecione uma opção", Toast.LENGTH_SHORT).show()
+                            }
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(50.dp),
+                        shape = RoundedCornerShape(16.dp)
+                    ) {
+                        Text(if (currentQuestionIndex < questions.size - 1) "Próxima" else "Finalizar", fontSize = 18.sp)
+                    }
+                }
+            } else {
+                Text("Falha ao carregar perguntas. Tente novamente.")
             }
         }
-    } else {
-        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-            Text("Falha ao carregar perguntas. Tente novamente.")
-        }
+    }
+}
+
+@Composable
+private fun OptionItem(text: String, isSelected: Boolean, onOptionSelected: () -> Unit) {
+    val backgroundColor = if (isSelected) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surfaceVariant
+    val borderColor = if (isSelected) MaterialTheme.colorScheme.primary else Color.Transparent
+    val contentColor = if (isSelected) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurfaceVariant
+
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(16.dp))
+            .background(backgroundColor)
+            .border(2.dp, borderColor, RoundedCornerShape(16.dp))
+            .clickable { onOptionSelected() }
+            .padding(16.dp),
+        contentAlignment = Alignment.CenterStart
+    ) {
+        Text(text = text, color = contentColor, fontSize = 16.sp)
     }
 }

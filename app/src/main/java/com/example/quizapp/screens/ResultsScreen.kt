@@ -2,12 +2,16 @@ package com.example.quizapp.screens
 
 import android.util.Log
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
@@ -23,7 +27,6 @@ fun ResultsScreen(navController: NavController, score: Int, totalQuestions: Int)
         val userId = FirebaseAuth.getInstance().currentUser?.uid
         if (userId != null) {
             val db = FirebaseFirestore.getInstance()
-            // Salva no histórico
             val quizAttempt = hashMapOf(
                 "userId" to userId,
                 "score" to score,
@@ -32,7 +35,6 @@ fun ResultsScreen(navController: NavController, score: Int, totalQuestions: Int)
             )
             db.collection("history").add(quizAttempt)
 
-            // Atualiza o ranking
             val rankingRef = db.collection("ranking").document(userId)
             val userRef = db.collection("users").document(userId)
 
@@ -60,14 +62,40 @@ fun ResultsScreen(navController: NavController, score: Int, totalQuestions: Int)
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text(text = "Você acertou $score de $totalQuestions perguntas!", fontSize = 24.sp)
-        Spacer(modifier = Modifier.height(24.dp))
-        Button(onClick = {
-            navController.navigate(Screen.Dashboard.route) {
-                popUpTo(Screen.Dashboard.route) { inclusive = true }
-            }
-        }) {
-            Text("Voltar ao Início")
+        Text(
+            text = "Parabéns!",
+            fontSize = 32.sp,
+            fontWeight = FontWeight.Bold,
+            color = MaterialTheme.colorScheme.primary
+        )
+        Spacer(modifier = Modifier.height(16.dp))
+        Text(
+            text = "Você acertou",
+            fontSize = 20.sp
+        )
+        Text(
+            text = "$score de $totalQuestions",
+            fontSize = 48.sp,
+            fontWeight = FontWeight.ExtraBold,
+            color = MaterialTheme.colorScheme.onBackground
+        )
+        Text(
+            text = "perguntas!",
+            fontSize = 20.sp
+        )
+        Spacer(modifier = Modifier.height(48.dp))
+        Button(
+            onClick = {
+                navController.navigate(Screen.Dashboard.route) {
+                    popUpTo(Screen.Dashboard.route) { inclusive = true }
+                }
+            },
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(50.dp),
+            shape = RoundedCornerShape(16.dp)
+        ) {
+            Text("Voltar ao Início", fontSize = 18.sp)
         }
     }
 }
