@@ -8,6 +8,8 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -32,14 +34,21 @@ fun QuizScreen(navController: NavController) {
     var selectedOption by remember { mutableStateOf("") }
     val context = LocalContext.current
 
+    // ADIÇÃO: Estado para mensagem de erro
+    var errorMessage by remember { mutableStateOf<String?>(null) }
+
     LaunchedEffect(key1 = Unit) {
+        isLoading = true // Garante que isLoading seja true no início da busca
+        errorMessage = null // Limpa erros anteriores
         FirebaseFirestore.getInstance().collection("quizzes").document("geral").collection("questions")
             .get()
             .addOnSuccessListener { result ->
                 questions = result.map { it.toObject(Question::class.java) }.shuffled()
                 isLoading = false
             }
-            .addOnFailureListener {
+            .addOnFailureListener { exception -> // Captura a exceção
+                // ALTERAÇÃO: Define a mensagem de erro
+                errorMessage = "Falha ao carregar perguntas: ${exception.message}"
                 isLoading = false
             }
     }
@@ -48,8 +57,12 @@ fun QuizScreen(navController: NavController) {
         topBar = {
             TopAppBar(
                 title = {
-                    if (questions.isNotEmpty()) {
+                    if (questions.isNotEmpty() && !isLoading) { // Condição melhorada
                         Text("Pergunta ${currentQuestionIndex + 1} de ${questions.size}")
+                    } else if (isLoading) {
+                        Text("Carregando perguntas...")
+                    } else {
+                        Text("Quiz") // Título para erro ou lista vazia
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
@@ -66,6 +79,14 @@ fun QuizScreen(navController: NavController) {
         ) {
             if (isLoading) {
                 CircularProgressIndicator()
+                // ALTERAÇÃO: Exibe a mensagem de erro se houver
+            } else if (errorMessage != null) {
+                Text(
+                    text = errorMessage!!,
+                    color = MaterialTheme.colorScheme.error,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.padding(16.dp)
+                )
             } else if (questions.isNotEmpty()) {
                 val currentQuestion = questions[currentQuestionIndex]
                 Column(
@@ -119,7 +140,12 @@ fun QuizScreen(navController: NavController) {
                     }
                 }
             } else {
-                Text("Falha ao carregar perguntas. Tente novamente.")
+                // ALTERAÇÃO: Mensagem mais específica se não houver erro mas a lista estiver vazia
+                Text(
+                    "Nenhuma pergunta encontrada para este quiz. Tente novamente mais tarde.",
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.padding(16.dp)
+                )
             }
         }
     }
